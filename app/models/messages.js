@@ -1,10 +1,9 @@
-const { body, validationResult, check } = require('express-validator');
 
 module.exports = (sequelize, DataTypes) => {
     const Message = sequelize.define("messages", {
         id: {
             type: DataTypes.INTEGER,
-            primaryKey: true, // Add this line to specify id as the primary key
+            primaryKey: true, 
             autoIncrement: true,
         },
         messageText: {

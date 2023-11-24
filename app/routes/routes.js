@@ -6,8 +6,8 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const UserController = require('../controllers/users.controller')
 
-// constant secret key
-const secretKey = '\xe0\xd8\x1f4\ng\xa5o\xe0h~\xf8qL2\xbb1\xe4\xcfo\xf0\xf4G_\xd9\xb1Q\x97)sF\xdas#\x7f';
+// constant secret key (base64-encoded)
+const secretKey = '4f04HmehhvhwUTFMbTvh+HFMMrseT/zwR35H6sUt9iUpe+RKU2yN/JzR93k4HRQf+';
 
 // auth middleware
 const authenticateToken = (req, res, next) => {
@@ -33,12 +33,12 @@ router.post('/login', UserController.loginUser);
 router.post('/users', UserController.createUser);
 
 // create a new message
-router.post('/messages', UserController.createMessage);
+router.post('/messages', authenticateToken ,UserController.createMessage);
 
 // get all users
 router.get('/users', UserController.getUsers);
 
 // get all messages
-router.get('/messages', UserController.getMessages);
+router.get('/messages', authenticateToken ,UserController.getMessages);
 
-module.exports = { authenticateToken, router, secretKey: secretKey};
+module.exports = { authenticateToken, router, secretKey};

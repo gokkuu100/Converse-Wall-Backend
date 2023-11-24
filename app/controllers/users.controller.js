@@ -1,6 +1,9 @@
 const db = require('../models');
 const { validationResult, check } = require('express-validator');
-const { secretKey } = require('../routes')
+const {secretKey} = require('../routes/routes')
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+
 
 const User = db.users;
 const Message = db.messages;
@@ -23,16 +26,16 @@ const UserController = {
     loginUser: async (req, res) => {
         try {
             const { name, password } = req.body;
-            const user = await User.findOne({ where: { name }});
+            const user = await User.findOne({ where: { name } });
             if (!user || !(await bcrypt.compare(password, user.password))) {
                 return res.status(401).json({ message: "Invalid credentials" });
             }
 
-            const token = jwt.sign({ name: user.name, id: user.id }, secretKey);
+            const token = jwt.sign({ name: user.name, id: user.id }, secretKey, { expiresIn: '1h' });
             res.json({ token });
         } catch (error) {
             console.error(error);
-            res.status(500).json({ error: "Internal Server Error" })
+            res.status(500).json({ error: "Internal Server Error" });
         }
         
     },
