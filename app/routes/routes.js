@@ -7,7 +7,7 @@ const jwt = require('jsonwebtoken');
 const UserController = require('../controllers/users.controller')
 
 // constant secret key (base64-encoded)
-const secretKey = '4f04HmehhvhwUTFMbTvh+HFMMrseT/zwR35H6sUt9iUpe+RKU2yN/JzR93k4HRQf+';
+const secretKey = process.env.JWT_SECRET_KEY;
 
 // auth middleware
 const authenticateToken = (req, res, next) => {
@@ -17,7 +17,7 @@ const authenticateToken = (req, res, next) => {
         return res.status(401).json({ message: "Unauthorized" });
     }
 
-    jwt.verify(token, secretKey, (err, user) => {
+    jwt.verify(token, process.env.JWT_SECRET_KEY, (err, user) => {
         if (err) {
             return res.status(403).json({ message: "Forbidden" });
         }
@@ -41,4 +41,4 @@ router.get('/users', UserController.getUsers);
 // get all messages
 router.get('/messages', authenticateToken ,UserController.getMessages);
 
-module.exports = { authenticateToken, router, secretKey};
+module.exports = { authenticateToken, router };

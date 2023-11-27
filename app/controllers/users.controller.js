@@ -1,6 +1,6 @@
 const db = require('../models');
 const { validationResult, check } = require('express-validator');
-const {secretKey} = require('../routes/routes')
+// const {secretKey} = require('../routes/routes')
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
@@ -31,7 +31,7 @@ const UserController = {
                 return res.status(401).json({ message: "Invalid credentials" });
             }
 
-            const token = jwt.sign({ name: user.name, id: user.id }, secretKey, { expiresIn: '1h' });
+            const token = jwt.sign({ name: user.name, id: user.id }, process.env.JWT_SECRET_KEY, { expiresIn: '1h' });
             res.json({ token });
         } catch (error) {
             console.error(error);
