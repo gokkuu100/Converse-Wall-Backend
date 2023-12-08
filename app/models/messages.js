@@ -1,19 +1,19 @@
+
 module.exports = (sequelize, DataTypes) => {
     const Message = sequelize.define("messages", {
         id: {
             type: DataTypes.INTEGER,
-            primaryKey: true, // Add this line to specify id as the primary key
+            primaryKey: true, 
             autoIncrement: true,
-        },
-        senderId: {
-            type: DataTypes.INTEGER
-        },
-        receiverId: {
-            type: DataTypes.INTEGER
         },
         messageText: {
             type: DataTypes.STRING(1024),
         }
     });
+    
+    // foreign key relationships
+    Message.belongsTo(sequelize.models.users, { foreignKey: 'senderId', as: 'sender' });
+    Message.belongsTo(sequelize.models.users, { foreignKey: 'receiverId', as: 'receiver' });
+    
     return Message;
 };

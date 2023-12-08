@@ -28,10 +28,10 @@ db.sequelize = sequelize;
 db.users = require('./users')(sequelize, Sequelize);
 db.messages = require('./messages')(sequelize, Sequelize);
 
-db.users.hasMany(db.messages, {as: "messages" });
-db.messages.belongsTo(db.users, {
-    foreignKey: 'userId',
-    as: 'users'
-});
+// establish associations
+db.users.hasMany(db.messages, { as: "senderMessages", foreignKey: "senderId" });
+db.users.hasMany(db.messages, { as: "receiverMessages", foreignKey: "receiverId"});
+db.messages.belongsTo(db.users, { foreignKey: "senderId", as: "senderUser" });
+db.messages.belongsTo(db.users, { foreignKey: "receiverId", as: "receiverUser" });
 
 module.exports = db;
