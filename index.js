@@ -14,8 +14,8 @@ db.sequelize.sync().then(() => {
     console.log("Database synced successfully");
 });
 
-app.use(bodyParser.json());
-app.use(express.json());
+app.use(bodyParser.json({ limit: "5mb"}));
+app.use(express.json({ limit: "5mb"}));
 app.use(express.urlencoded({ extended: true }));
 
 app.use('/api', router.router);
@@ -31,18 +31,46 @@ const io = socketIO(server, {
     cors: {
         origin: "http://localhost:3000",
         methods: ["GET", "POST"]
-    }
+    },
+    maxHttpBufferSize: 1e8,
 });
 
+const connectedUsers = {}; 
 io.on('connection', (socket) => {
     console.log(`User connected: ${socket.id}`);
 
+    socket.on('join_room', (senderId) => {
+        connectedUsers[senderId] = socket.id;
+        socket.join(senderId); // Join a room with the user's ID
+    });
+
     socket.on('send_message', (data) => {
-        socket.broadcast.emit('receive_message', data);
+        const { senderId, receiverId, message, type } = data;
+        
+        // Send the message to the receiver's room
+        io.to(connectedUsers[receiverId]).emit('receive_message', {
+            senderId,
+            message,
+            type: "received"
+        });
+
+        // broadcast messages to sender's room
+        io.to(connectedUsers[senderId]).emit('receive_message', {
+            senderId,
+            message,
+            type,
+        });
     });
 
     socket.on('disconnect', () => {
         console.log('User disconnected');
+        // Remove user from the connected users list on disconnect
+        const userId = Object.keys(connectedUsers).find(
+            (key) => connectedUsers[key] === socket.id
+        );
+        if (userId) {
+            delete connectedUsers[userId];
+        }
     });
 });
 

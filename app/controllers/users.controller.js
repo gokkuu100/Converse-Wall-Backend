@@ -1,6 +1,6 @@
 const db = require('../models');
 const { validationResult, check } = require('express-validator');
-// const {secretKey} = require('../routes/routes')
+const { Op } = require('sequelize')
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
@@ -30,9 +30,9 @@ const UserController = {
             if (!user || !(await bcrypt.compare(password, user.password))) {
                 return res.status(401).json({ message: "Invalid credentials" });
             }
-
+            const { id } = user
             const token = jwt.sign({ name: user.name, id: user.id }, process.env.JWT_SECRET_KEY, { expiresIn: '1h' });
-            res.json({ token });
+            res.json({ name, id, token });
         } catch (error) {
             console.error(error);
             res.status(500).json({ error: "Internal Server Error" });
@@ -42,12 +42,12 @@ const UserController = {
 
     // create and save a message
     createMessage: async (req, res) => {
-        // check for validation errors
         try {
             await Promise.all([
                 check('messageText').notEmpty().withMessage("Message Text is required").run(req),
                 check('senderId').notEmpty().withMessage("SenderId is required").run(req),
-                check('receiverId').optional().run(req)
+                check('receiverId').optional().run(req),
+                // Add validation for image upload
             ]);
     
             const errors = validationResult(req);
@@ -55,8 +55,8 @@ const UserController = {
                 return res.status(400).json({ errors: errors.array()[0] });
             }
     
-            const { senderId, receiverId, messageText } = req.body;
-            const newMessage = await Message.create({ senderId, receiverId, messageText });
+            const { senderId, receiverId, messageText, imageUrl } = req.body;
+            const newMessage = await Message.create({ senderId, receiverId, messageText, imageUrl });
             res.status(201).json(newMessage);
         } catch (error) {
             console.error(error);
@@ -83,6 +83,41 @@ const UserController = {
         } catch (error) {
             console.error(error);
             res.status(500).json({ error: 'Internal Server Error'});
+        }
+    },
+
+    // conversations
+    getConversation: async (req, res) => {
+        try {
+            const { id } = req.user;
+            const { receiverId } = req.params;
+
+            const conversationsReceived = await Message.findAll({
+                where: {
+                    senderId: receiverId,
+                    receiverId: id
+                },
+                order: [['createdAt', 'ASC']]
+            });
+
+            const conversationsSent = await Message.findAll({
+                where: {
+                    senderId: id,
+                    receiverId: receiverId,
+                },
+                order: [['createdAt', 'ASC']]
+            })
+            const conversations = [...conversationsReceived, ...conversationsSent]
+            res.status(200).json(conversations.map((msg) => ({
+                senderId: msg.senderId,
+                receiverId: msg.receiverId,
+                messageText: msg.messageText,
+                type: msg.senderId === id ? 'sent' : 'received',
+                createdAt: msg.createdAt,
+            })));
+        } catch (error) {
+            console.error(error);
+            res.status(500).json({ error: "Internal Server Error"})
         }
     }
 }

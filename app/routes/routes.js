@@ -41,4 +41,7 @@ router.get('/users', UserController.getUsers);
 // get all messages
 router.get('/messages', authenticateToken ,UserController.getMessages);
 
+// get conversations
+router.get('/conversations/:receiverId', authenticateToken, UserController.getConversation)
+
 module.exports = { authenticateToken, router };
