@@ -10,11 +10,5 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false,
       },
     });
-
-    // foreign key relationships
-    Image.belongsTo(sequelize.models.users, { foreignKey: 'senderId', as: 'sender' });
-    Image.belongsTo(sequelize.models.users, { foreignKey: 'receiverId', as: 'receiver' });
-        
-  
     return Image;
   };

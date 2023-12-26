@@ -31,15 +31,7 @@ db.users = require('./users')(sequelize, Sequelize);
 db.messages = require('./messages')(sequelize, Sequelize);
 
 // establish associations
-db.users.hasMany(db.messages, { as: "senderMessages", foreignKey: "senderId" });
-db.users.hasMany(db.messages, { as: "receiverMessages", foreignKey: "receiverId"});
-db.messages.belongsTo(db.users, { foreignKey: "senderId", as: "senderUser" });
-db.messages.belongsTo(db.users, { foreignKey: "receiverId", as: "receiverUser" });
-
-db.users.hasMany(db.images, { as: "senderImages", foreignKey: "senderId" });
-db.users.hasMany(db.images, { as: "receiverImages", foreignKey: "receiverId" });
-db.images.belongsTo(db.users, { foreignKey: "senderId", as: "senderUser" });
-db.images.belongsTo(db.users, { foreignKey: "receiverId", as: "receiverUser" });
-
+const associateModels = require('./associations');
+associateModels(db);
 
 module.exports = db;

@@ -10,10 +10,5 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.STRING(1024),
         }
     });
-    
-    // foreign key relationships
-    Message.belongsTo(sequelize.models.users, { foreignKey: 'senderId', as: 'sender' });
-    Message.belongsTo(sequelize.models.users, { foreignKey: 'receiverId', as: 'receiver' });
-    
     return Message;
 };
