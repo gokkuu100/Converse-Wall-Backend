@@ -55,8 +55,8 @@ const UserController = {
                 return res.status(400).json({ errors: errors.array()[0] });
             }
     
-            const { senderId, receiverId, messageText, imageUrl } = req.body;
-            const newMessage = await Message.create({ senderId, receiverId, messageText, imageUrl });
+            const { senderId, receiverId, messageText } = req.body;
+            const newMessage = await Message.create({ senderId, receiverId, messageText });
             res.status(201).json(newMessage);
         } catch (error) {
             console.error(error);

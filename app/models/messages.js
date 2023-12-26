@@ -8,9 +8,6 @@ module.exports = (sequelize, DataTypes) => {
         },
         messageText: {
             type: DataTypes.STRING(1024),
-        },
-        imageUrl: {
-            type: DataTypes.STRING, // Change the data type based on your needs
         }
     });
     
