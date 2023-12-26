@@ -8,6 +8,7 @@ const jwt = require('jsonwebtoken');
 
 const User = db.users;
 const Message = db.messages;
+const Image = db.images
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage })
 
@@ -89,38 +90,6 @@ const UserController = {
         }
     },
 
-    storeImages: upload.single('image'), async (req, res) => {
-        try {
-          const { senderId, receiverId } = req.body;
-          const imageData = req.file.buffer; // Access the image buffer from Multer
-    
-          // Save image information to the database
-          const newImage = await Images.create({
-            senderId,
-            receiverId,
-            image_data: imageData,
-          });
-    
-          res.status(201).json(newImage);
-        } catch (error) {
-          console.error(error);
-          res.status(500).json({ error: 'Internal Server Error' });
-        }
-      },
-    
-    // get images:
-    getImages: async (req, res) => {
-        try {
-            const images = await Images.findAll({
-                order: [['createdAt', 'ASC']],
-            });
-            res.status(200).json(images)
-        } catch (error) {
-            console.error(error);
-            res.status(500).json({ error: "Internal Server Error"})
-        }
-    },
-
     // conversations
     getConversation: async (req, res) => {
         try {
@@ -154,7 +123,43 @@ const UserController = {
             console.error(error);
             res.status(500).json({ error: "Internal Server Error"})
         }
-    }
+    },
+
+    storeImages: async function(req, res) {
+        try {
+          console.log('req.body:', req.body);
+          console.log('req.file:', req.file);
+      
+          const { senderId, receiverId } = req.body;
+          const imageData = req.file.buffer; // Access the image buffer from Multer
+      
+          // Save image information to the database
+          const newImage = await Image.create({
+            senderId,
+            receiverId,
+            image_data: imageData,
+          });
+      
+          res.status(201).json(newImage);
+        } catch (error) {
+          console.error(error);
+          res.status(500).json({ error: 'Internal Server Error' });
+        }
+      },
+    
+    
+      // get images:
+      getImages: async (req, res) => {
+        try {
+          const images = await Image.findAll({
+            order: [['createdAt', 'ASC']],
+          });
+          res.status(200).json(images);
+        } catch (error) {
+          console.error(error);
+          res.status(500).json({ error: 'Internal Server Error' });
+        }
+      },
 }
 
 module.exports = UserController;
