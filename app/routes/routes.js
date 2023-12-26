@@ -26,22 +26,13 @@ const authenticateToken = (req, res, next) => {
     });
 };
 
-// login
 router.post('/login', UserController.loginUser);
-
-// create a new user
 router.post('/users', UserController.createUser);
-
-// create a new message
 router.post('/messages', authenticateToken ,UserController.createMessage);
+router.post('/upload', UserController.storeImages)
 
-// get all users
 router.get('/users', UserController.getUsers);
-
-// get all messages
 router.get('/messages', authenticateToken ,UserController.getMessages);
-
-// get conversations
 router.get('/conversations/:receiverId', authenticateToken, UserController.getConversation)
 
 module.exports = { authenticateToken, router };

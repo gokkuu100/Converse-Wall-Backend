@@ -12,6 +12,7 @@ const sequelize = new Sequelize(dbConfig.DB, dbConfig.USER, dbConfig.PASSWORD, {
     }
 });
 
+
 // test connection
 sequelize.authenticate()
 .then(() => {
@@ -25,6 +26,7 @@ const db = {};
 db.Sequelize = Sequelize;
 db.sequelize = sequelize;
 
+db.images = require('./images')(sequelize, Sequelize)
 db.users = require('./users')(sequelize, Sequelize);
 db.messages = require('./messages')(sequelize, Sequelize);
 
@@ -33,5 +35,11 @@ db.users.hasMany(db.messages, { as: "senderMessages", foreignKey: "senderId" });
 db.users.hasMany(db.messages, { as: "receiverMessages", foreignKey: "receiverId"});
 db.messages.belongsTo(db.users, { foreignKey: "senderId", as: "senderUser" });
 db.messages.belongsTo(db.users, { foreignKey: "receiverId", as: "receiverUser" });
+
+db.users.hasMany(db.images, { as: "senderImages", foreignKey: "senderId" });
+db.users.hasMany(db.images, { as: "receiverImages", foreignKey: "receiverId" });
+db.images.belongsTo(db.users, { foreignKey: "senderId", as: "senderUser" });
+db.images.belongsTo(db.users, { foreignKey: "receiverId", as: "receiverUser" });
+
 
 module.exports = db;

@@ -1,12 +1,15 @@
 const db = require('../models');
 const { validationResult, check } = require('express-validator');
 const { Op } = require('sequelize')
+const multer = require("multer")
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
 
 const User = db.users;
 const Message = db.messages;
+const storage = multer.memoryStorage();
+const upload = multer({ storage: storage })
 
 const UserController = {
     // create and save new users 
@@ -83,6 +86,38 @@ const UserController = {
         } catch (error) {
             console.error(error);
             res.status(500).json({ error: 'Internal Server Error'});
+        }
+    },
+
+    storeImages: upload.single('image'), async (req, res) => {
+        try {
+          const { senderId, receiverId } = req.body;
+          const imageData = req.file.buffer; // Access the image buffer from Multer
+    
+          // Save image information to the database
+          const newImage = await Images.create({
+            senderId,
+            receiverId,
+            image_data: imageData,
+          });
+    
+          res.status(201).json(newImage);
+        } catch (error) {
+          console.error(error);
+          res.status(500).json({ error: 'Internal Server Error' });
+        }
+      },
+    
+    // get images:
+    getImages: async (req, res) => {
+        try {
+            const images = await Images.findAll({
+                order: [['createdAt', 'ASC']],
+            });
+            res.status(200).json(images)
+        } catch (error) {
+            console.error(error);
+            res.status(500).json({ error: "Internal Server Error"})
         }
     },
 
