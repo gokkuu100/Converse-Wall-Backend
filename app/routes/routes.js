@@ -4,7 +4,8 @@ const { body, validationResult, check } = require("express-validator");
 const { validateMessage } = require('../models/messages')
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const UserController = require('../controllers/users.controller')
+const {UserController, upload} = require('../controllers/users.controller')
+
 
 // constant secret key (base64-encoded)
 const secretKey = process.env.JWT_SECRET_KEY;
@@ -29,10 +30,11 @@ const authenticateToken = (req, res, next) => {
 router.post('/login', UserController.loginUser);
 router.post('/users', UserController.createUser);
 router.post('/messages', authenticateToken ,UserController.createMessage);
-router.post('/upload', UserController.storeImages)
+router.post('/upload', upload.single('image'), UserController.storeImages)
 
 router.get('/users', UserController.getUsers);
 router.get('/messages', authenticateToken ,UserController.getMessages);
+router.get('/images', UserController.getImages);
 router.get('/conversations/:receiverId', authenticateToken, UserController.getConversation)
 
 module.exports = { authenticateToken, router };

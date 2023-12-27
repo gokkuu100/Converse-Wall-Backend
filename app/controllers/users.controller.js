@@ -10,7 +10,7 @@ const User = db.users;
 const Message = db.messages;
 const Image = db.images
 const storage = multer.memoryStorage();
-const upload = multer({ storage: storage })
+const upload = multer({ storage: storage });
 
 const UserController = {
     // create and save new users 
@@ -137,7 +137,7 @@ const UserController = {
           const newImage = await Image.create({
             senderId,
             receiverId,
-            image_data: imageData,
+            image_data: imageData.toString("base64"),
           });
       
           res.status(201).json(newImage);
@@ -159,7 +159,7 @@ const UserController = {
           console.error(error);
           res.status(500).json({ error: 'Internal Server Error' });
         }
-      },
+      }
 }
 
-module.exports = UserController;
+module.exports = {UserController, upload};
