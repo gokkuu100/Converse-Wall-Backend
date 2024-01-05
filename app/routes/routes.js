@@ -7,7 +7,7 @@ const jwt = require('jsonwebtoken');
 const {UserController, upload} = require('../controllers/users.controller')
 
 
-// constant secret key (base64-encoded)
+// secret key (base64-encoded)
 const secretKey = process.env.JWT_SECRET_KEY;
 
 // auth middleware
@@ -36,5 +36,8 @@ router.get('/users', UserController.getUsers);
 router.get('/messages', authenticateToken ,UserController.getMessages);
 router.get('/images', UserController.getImages);
 router.get('/conversations/:receiverId', authenticateToken, UserController.getConversation)
+router.get('/allconversations/:receiverId', authenticateToken, UserController.getAllconversation)
+
+
 
 module.exports = { authenticateToken, router };

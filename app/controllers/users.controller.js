@@ -51,7 +51,7 @@ const UserController = {
                 check('messageText').notEmpty().withMessage("Message Text is required").run(req),
                 check('senderId').notEmpty().withMessage("SenderId is required").run(req),
                 check('receiverId').optional().run(req),
-                // Add validation for image upload
+                
             ]);
     
             const errors = validationResult(req);
@@ -131,7 +131,7 @@ const UserController = {
           console.log('req.file:', req.file);
       
           const { senderId, receiverId } = req.body;
-          const imageData = req.file.buffer; // Access the image buffer from Multer
+          const imageData = req.file.buffer; 
       
           // Save image information to the database
           const newImage = await Image.create({
@@ -158,6 +158,72 @@ const UserController = {
         } catch (error) {
           console.error(error);
           res.status(500).json({ error: 'Internal Server Error' });
+        }
+      },
+
+      // getallimagesandmessagesconversation
+      getAllconversation: async (req, res) => {
+        try {
+            const { id } = req.user;
+            const { receiverId } = req.params;
+    
+            // fetch messages between the two users
+            const messagesReceived = await Message.findAll({
+                where: {
+                    senderId: receiverId,
+                    receiverId: id
+                },
+                order: [['createdAt', 'ASC']]
+            });
+    
+            const messagesSent = await Message.findAll({
+                where: {
+                    senderId: id,
+                    receiverId: receiverId,
+                },
+                order: [['createdAt', 'ASC']]
+            });
+    
+            const messages = [...messagesReceived, ...messagesSent];
+    
+            // fetch images between the two users
+            const imagesSent = await Image.findAll({
+                where: {
+                    senderId: id,
+                    receiverId: receiverId,
+                },
+                order: [['createdAt', 'ASC']],
+            });
+    
+            const imagesReceived = await Image.findAll({
+                where: {
+                    senderId: receiverId,
+                    receiverId: id,
+                },
+                order: [['createdAt', 'ASC']],
+            });
+    
+            const conversation = {
+                messages: messages.map((item) => ({
+                    senderId: item.senderId,
+                    receiverId: item.receiverId,
+                    content: item.messageText,
+                    type: 'message',
+                    createdAt: item.createdAt,
+                })),
+                images: images.map((item) => ({
+                    senderId: item.senderId,
+                    receiverId: item.receiverId,
+                    content: item.image_data,
+                    type: 'image',
+                    createdAt: item.createdAt,
+                })),
+            };
+    
+            res.status(200).json(conversation);
+        } catch (error) {
+            console.error(error);
+            res.status(500).json({ error: "Internal Server Error" });
         }
       }
 }
