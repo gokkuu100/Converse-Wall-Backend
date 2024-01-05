@@ -12,6 +12,7 @@ const sequelize = new Sequelize(dbConfig.DB, dbConfig.USER, dbConfig.PASSWORD, {
     }
 });
 
+
 // test connection
 sequelize.authenticate()
 .then(() => {
@@ -25,13 +26,12 @@ const db = {};
 db.Sequelize = Sequelize;
 db.sequelize = sequelize;
 
+db.images = require('./images')(sequelize, Sequelize)
 db.users = require('./users')(sequelize, Sequelize);
 db.messages = require('./messages')(sequelize, Sequelize);
 
 // establish associations
-db.users.hasMany(db.messages, { as: "senderMessages", foreignKey: "senderId" });
-db.users.hasMany(db.messages, { as: "receiverMessages", foreignKey: "receiverId"});
-db.messages.belongsTo(db.users, { foreignKey: "senderId", as: "senderUser" });
-db.messages.belongsTo(db.users, { foreignKey: "receiverId", as: "receiverUser" });
+const associateModels = require('./associations');
+associateModels(db);
 
 module.exports = db;
